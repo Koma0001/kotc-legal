@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>King of the City — Account Deletion</title>
+  <meta
+    name="description"
+    content="How to request deletion of your King of the City (KOTC) account."
+  />
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #dbe2ea;
+      --accent: #0f766e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px 12px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+    }
+
+    h2 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      font-size: 1.25rem;
+    }
+
+    p {
+      margin: 0.8em 0;
+    }
+
+    ul {
+      padding-left: 1.2em;
+    }
+
+    li + li {
+      margin-top: 0.45em;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    .note {
+      color: var(--muted);
+    }
+
+    .panel {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 14px;
+    }
+
+    form {
+      margin-top: 8px;
+      display: grid;
+      gap: 10px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      color: #111827;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      width: fit-content;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      filter: brightness(0.95);
+    }
+
+    @media (max-width: 700px) {
+      main {
+        padding: 18px 14px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>King of the City — Account Deletion</h1>
+    <p>
+      You can request account deletion without reinstalling the app by emailing
+      <a href="mailto:komadina.koma@gmail.com">komadina.koma@gmail.com</a>.
+    </p>
+
+    <h2>What to include in your request</h2>
+    <ul>
+      <li>Account email (the email used to sign in)</li>
+      <li>Username / display name (if applicable)</li>
+      <li>Optional: city/league or another identifier if duplicate names exist</li>
+    </ul>
+
+    <h2>What gets deleted</h2>
+    <ul>
+      <li>Supabase Auth account (email login)</li>
+      <li>Public profile (username/display name)</li>
+      <li>Challenge history and match records</li>
+      <li>Submitted video links (URLs). We do not store video files.</li>
+    </ul>
+
+    <h2>What may be retained</h2>
+    <ul>
+      <li>Minimal audit/security logs for fraud and abuse prevention (up to 30 days)</li>
+      <li>Short-lived backup copies until backup rotation completes</li>
+    </ul>
+
+    <h2>Processing timeline</h2>
+    <p>We process deletion requests within 30 days.</p>
+
+    <h2>Current monetization status</h2>
+    <p>No in-app purchases and no ads in the current build.</p>
+
+    <h2>Quick request form (email)</h2>
+    <div class="panel">
+      <p class="note">
+        This form opens your email app with a pre-filled deletion request. If mailto does not
+        work on your device/browser, send a manual email to
+        <a href="mailto:komadina.koma@gmail.com">komadina.koma@gmail.com</a>.
+      </p>
+      <form id="delete-request-form">
+        <div>
+          <label for="request-email">Account email</label>
+          <input id="request-email" name="email" type="email" required />
+        </div>
+        <div>
+          <label for="request-username">Username / display name</label>
+          <input id="request-username" name="username" type="text" />
+        </div>
+        <div>
+          <label for="request-message">Optional message</label>
+          <textarea id="request-message" name="message"></textarea>
+        </div>
+        <button type="submit">Create deletion email</button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const form = document.getElementById("delete-request-form");
+      if (!form) return;
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const email = document.getElementById("request-email").value.trim();
+        const username = document.getElementById("request-username").value.trim();
+        const message = document.getElementById("request-message").value.trim();
+
+        const subject = "KOTC Account Deletion Request";
+        const bodyLines = [
+          "I want to request account deletion for King of the City (KOTC).",
+          "",
+          "Account email: " + email,
+          "Username/display name: " + (username || "(not provided)"),
+          "",
+          "Optional message:",
+          message || "(none)",
+        ];
+        const mailto =
+          "mailto:komadina.koma@gmail.com?subject=" +
+          encodeURIComponent(subject) +
+          "&body=" +
+          encodeURIComponent(bodyLines.join("\n"));
+        window.location.href = mailto;
+      });
+    })();
+  </script>
+</body>
+</html>
