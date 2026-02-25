@@ -44,7 +44,28 @@
       text-decoration: underline;
       font-size: 14px;
     }
+    .direct-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 24px;
+      background: transparent;
+      color: #00f0ff;
+      border: 1px solid #00f0ff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .direct-btn:active { background: rgba(0, 240, 255, 0.1); }
     .sub { margin-top: 30px; font-size: 12px; color: #666; }
+    .token-status {
+      margin: 12px auto;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .token-ok { color: #4caf50; }
+    .token-missing { color: #f44336; }
   </style>
 </head>
 <body>
@@ -52,6 +73,8 @@
   <p class="dbg">Path: /kotc-legal/reset-redirect/</p>
   <p class="dbg">URL: <span id="dbg-url">loading...</span></p>
   <p class="dbg">UA: <span id="dbg-ua">loading...</span></p>
+  <p id="dbg-href" class="dbg"></p>
+  <p id="token-status" class="token-status"></p>
 
   <h2>King of the City</h2>
   <p>Tap the button below to open the app and reset your password.</p>
@@ -59,6 +82,8 @@
   <a id="btn" class="btn" href="intent://reset-password#Intent;scheme=kotc;package=com.koma0001.kotc;end">Open App</a>
   <br />
   <a id="alt" class="alt" href="kotc://reset-password">Alternate link</a>
+  <br />
+  <button id="direct-btn" class="direct-btn">Direct open (JS fallback)</button>
 
   <p class="sub">Make sure King of the City is installed on this device.</p>
 
@@ -66,6 +91,8 @@
     (function () {
       var dbgUrl = document.getElementById("dbg-url");
       var dbgUa = document.getElementById("dbg-ua");
+      var dbgHref = document.getElementById("dbg-href");
+      var tokenStatus = document.getElementById("token-status");
       if (dbgUrl) dbgUrl.textContent = location.href;
       if (dbgUa) dbgUa.textContent = navigator.userAgent || "(unknown)";
 
@@ -73,19 +100,53 @@
       var hash = location.hash || "";
       var hashPayload = hash.length > 1 ? hash.substring(1) : "";
 
+      // Merge ALL params (query + hash fragment) into query string.
+      // Supabase puts tokens in the hash for implicit flow; moving them to
+      // query avoids fragment edge cases across browsers and intent:// handling.
       var mergedQuery = query;
       if (hashPayload) {
         mergedQuery = query ? (query + "&" + hashPayload) : ("?" + hashPayload);
       }
 
+      // Check if we have recovery tokens
+      var hasTokens = mergedQuery.indexOf("access_token=") !== -1
+                   || mergedQuery.indexOf("token_hash=") !== -1
+                   || mergedQuery.indexOf("code=") !== -1;
+
+      if (tokenStatus) {
+        if (hasTokens) {
+          tokenStatus.className = "token-status token-ok";
+          tokenStatus.textContent = "Recovery tokens detected";
+        } else {
+          tokenStatus.className = "token-status token-missing";
+          tokenStatus.textContent = "WARNING: No recovery tokens found in URL";
+        }
+      }
+
+      // Build deep link URLs — tokens always in query string (not hash)
+      var deepLinkUrl = "kotc://reset-password" + mergedQuery;
+      var intentUrl = "intent://reset-password" + mergedQuery + "#Intent;scheme=kotc;package=com.koma0001.kotc;end";
+
       var btn = document.getElementById("btn");
       var alt = document.getElementById("alt");
 
-      if (btn) {
-        btn.href = "intent://reset-password" + mergedQuery + "#Intent;scheme=kotc;package=com.koma0001.kotc;end";
+      if (btn) btn.href = intentUrl;
+      if (alt) alt.href = deepLinkUrl;
+
+      // Show computed hrefs for debugging (truncated for readability)
+      if (dbgHref) {
+        var intentPreview = intentUrl.length > 120 ? intentUrl.substring(0, 120) + "..." : intentUrl;
+        var directPreview = deepLinkUrl.length > 120 ? deepLinkUrl.substring(0, 120) + "..." : deepLinkUrl;
+        dbgHref.textContent = "Intent: " + intentPreview + " | Direct: " + directPreview;
       }
-      if (alt) {
-        alt.href = "kotc://reset-password" + query + hash;
+
+      // Third fallback: direct JS navigation (bypasses <a> href dispatch)
+      var directBtn = document.getElementById("direct-btn");
+      if (directBtn) {
+        directBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          window.location.href = deepLinkUrl;
+        });
       }
     })();
   </script>
