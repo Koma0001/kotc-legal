@@ -1,152 +1,162 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>KOTC - Password Reset</title>
+  <title>King of the City - Password Reset</title>
   <meta name="description" content="Open King of the City app to complete password reset." />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; }
     body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: radial-gradient(circle at top, #16213a 0%, #0d1220 45%, #070b14 100%);
+      color: #e8ecf4;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      text-align: center;
-      padding: 36px 20px;
-      background: #0a0a0f;
-      color: #e0e0e0;
     }
-    h1 { color: #00f0ff; margin-bottom: 10px; font-size: 28px; }
-    h2 { color: #fff; margin: 8px 0 14px; font-size: 22px; }
-    p { color: #aaa; margin: 8px 0; font-size: 15px; }
-    .dbg {
-      margin: 8px auto;
-      max-width: 920px;
-      word-break: break-word;
-      font-size: 12px;
-      color: #8f9aaf;
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: rgba(12, 17, 30, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 28px 22px;
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      color: #ffffff;
+    }
+    p.subtitle {
+      margin: 0 0 22px;
+      color: #c8d1e0;
+      line-height: 1.45;
+      font-size: 15px;
     }
     .btn {
-      display: inline-block;
-      margin-top: 28px;
-      padding: 16px 36px;
-      background: #00f0ff;
-      color: #000;
+      display: block;
+      width: 100%;
+      border: 0;
       border-radius: 12px;
       text-decoration: none;
+      padding: 14px 16px;
       font-weight: 700;
-      font-size: 17px;
-      -webkit-tap-highlight-color: rgba(0, 240, 255, 0.3);
+      font-size: 16px;
+      background: #2fd9ff;
+      color: #07111d;
+      margin: 0 0 12px;
+      -webkit-tap-highlight-color: transparent;
     }
-    .btn:active { background: #00c8d8; }
+    .btn:active { background: #22c5eb; }
     .alt {
       display: inline-block;
-      margin-top: 16px;
-      color: #00f0ff;
+      margin-top: 2px;
+      color: #8fdfff;
       text-decoration: underline;
       font-size: 14px;
     }
-    .direct-btn {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 10px 24px;
-      background: transparent;
-      color: #00f0ff;
-      border: 1px solid #00f0ff;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .direct-btn:active { background: rgba(0, 240, 255, 0.1); }
-    .sub { margin-top: 30px; font-size: 12px; color: #666; }
-    .token-status {
-      margin: 12px auto;
+    .help {
+      margin-top: 18px;
+      color: #aeb7c8;
       font-size: 13px;
-      font-weight: 600;
+      line-height: 1.5;
     }
-    .token-ok { color: #4caf50; }
-    .token-missing { color: #f44336; }
+    .help p { margin: 6px 0; }
+    .debug {
+      margin-top: 18px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.18);
+      padding-top: 12px;
+      text-align: left;
+      font-size: 12px;
+      color: #9fb0cb;
+      word-break: break-word;
+      display: none;
+    }
+    .debug.visible { display: block; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #d5deef;
+    }
   </style>
 </head>
 <body>
-  <h1>RESET REDIRECT OK</h1>
-  <p class="dbg">Path: /kotc-legal/reset-redirect/</p>
-  <p class="dbg">URL: <span id="dbg-url">loading...</span></p>
-  <p class="dbg">UA: <span id="dbg-ua">loading...</span></p>
-  <p id="dbg-href" class="dbg"></p>
-  <p id="token-status" class="token-status"></p>
+  <main class="card">
+    <h1>King of the City</h1>
+    <p class="subtitle">Tap below to open the app and reset your password.</p>
 
-  <h2>King of the City</h2>
-  <p>Tap the button below to open the app and reset your password.</p>
+    <a id="btn" class="btn" href="intent://reset-password#Intent;scheme=kotc;package=com.koma0001.kotc;end">Open App</a>
+    <a id="alt" class="alt" href="kotc://reset-password">Alternate link</a>
 
-  <a id="btn" class="btn" href="intent://reset-password#Intent;scheme=kotc;package=com.koma0001.kotc;end">Open App</a>
-  <br />
-  <a id="alt" class="alt" href="kotc://reset-password">Alternate link</a>
-  <br />
-  <button id="direct-btn" class="direct-btn">Direct open (JS fallback)</button>
+    <div class="help">
+      <p>If it doesn't open, go back to your email and tap the same link again.</p>
+      <p>Make sure King of the City is installed.</p>
+    </div>
 
-  <p class="sub">Make sure King of the City is installed on this device.</p>
+    <section id="debug" class="debug" aria-live="polite"></section>
+  </main>
 
   <script>
     (function () {
-      var dbgUrl = document.getElementById("dbg-url");
-      var dbgUa = document.getElementById("dbg-ua");
-      var dbgHref = document.getElementById("dbg-href");
-      var tokenStatus = document.getElementById("token-status");
-      if (dbgUrl) dbgUrl.textContent = location.href;
-      if (dbgUa) dbgUa.textContent = navigator.userAgent || "(unknown)";
+      var queryParams = new URLSearchParams(location.search || "");
+      var hashRaw = (location.hash || "").replace(/^#/, "");
+      var hashParams = new URLSearchParams(hashRaw);
+      var debugEnabled = queryParams.get("debug") === "1";
 
-      var query = location.search || "";
-      var hash = location.hash || "";
-      var hashPayload = hash.length > 1 ? hash.substring(1) : "";
+      var merged = new URLSearchParams();
+      queryParams.forEach(function (value, key) {
+        if (key === "debug") return;
+        merged.set(key, value);
+      });
+      hashParams.forEach(function (value, key) {
+        if (key === "debug") return;
+        if (!merged.has(key)) merged.set(key, value);
+      });
 
-      // Merge ALL params (query + hash fragment) into query string.
-      // Supabase puts tokens in the hash for implicit flow; moving them to
-      // query avoids fragment edge cases across browsers and intent:// handling.
-      var mergedQuery = query;
-      if (hashPayload) {
-        mergedQuery = query ? (query + "&" + hashPayload) : ("?" + hashPayload);
-      }
+      var mergedQuery = merged.toString();
+      var querySuffix = mergedQuery ? ("?" + mergedQuery) : "";
+      var hasTokens = merged.has("access_token") || merged.has("token_hash") || merged.has("code");
 
-      // Check if we have recovery tokens
-      var hasTokens = mergedQuery.indexOf("access_token=") !== -1
-                   || mergedQuery.indexOf("token_hash=") !== -1
-                   || mergedQuery.indexOf("code=") !== -1;
-
-      if (tokenStatus) {
-        if (hasTokens) {
-          tokenStatus.className = "token-status token-ok";
-          tokenStatus.textContent = "Recovery tokens detected";
-        } else {
-          tokenStatus.className = "token-status token-missing";
-          tokenStatus.textContent = "WARNING: No recovery tokens found in URL";
-        }
-      }
-
-      // Build deep link URLs — tokens always in query string (not hash)
-      var deepLinkUrl = "kotc://reset-password" + mergedQuery;
-      var intentUrl = "intent://reset-password" + mergedQuery + "#Intent;scheme=kotc;package=com.koma0001.kotc;end";
+      var intentHref = "intent://reset-password" + querySuffix + "#Intent;scheme=kotc;package=com.koma0001.kotc;end";
+      var altHref = "kotc://reset-password" + querySuffix;
 
       var btn = document.getElementById("btn");
       var alt = document.getElementById("alt");
+      if (btn) btn.href = intentHref;
+      if (alt) alt.href = altHref;
 
-      if (btn) btn.href = intentUrl;
-      if (alt) alt.href = deepLinkUrl;
-
-      // Show computed hrefs for debugging (truncated for readability)
-      if (dbgHref) {
-        var intentPreview = intentUrl.length > 120 ? intentUrl.substring(0, 120) + "..." : intentUrl;
-        var directPreview = deepLinkUrl.length > 120 ? deepLinkUrl.substring(0, 120) + "..." : deepLinkUrl;
-        dbgHref.textContent = "Intent: " + intentPreview + " | Direct: " + directPreview;
+      function maskValue(value) {
+        if (!value) return "";
+        if (value.length <= 8) return "***";
+        return value.slice(0, 4) + "..." + value.slice(-4);
       }
 
-      // Third fallback: direct JS navigation (bypasses <a> href dispatch)
-      var directBtn = document.getElementById("direct-btn");
-      if (directBtn) {
-        directBtn.addEventListener("click", function (e) {
-          e.preventDefault();
-          window.location.href = deepLinkUrl;
+      function maskedParams(params) {
+        var out = [];
+        params.forEach(function (value, key) {
+          out.push(key + "=" + maskValue(value));
         });
+        return out.length ? out.join("&") : "(none)";
+      }
+
+      if (debugEnabled) {
+        var debug = document.getElementById("debug");
+        if (debug) {
+          debug.className = "debug visible";
+          debug.innerHTML =
+            "<div><strong>Debug enabled</strong> (?debug=1)</div>" +
+            "<div>URL path: <code>" + location.pathname + "</code></div>" +
+            "<div>Query keys: <code>" + Array.from(queryParams.keys()).join(", ") + "</code></div>" +
+            "<div>Hash keys: <code>" + Array.from(hashParams.keys()).join(", ") + "</code></div>" +
+            "<div>Has recovery tokens: <code>" + (hasTokens ? "true" : "false") + "</code></div>" +
+            "<div>Merged params (masked): <code>" + maskedParams(merged) + "</code></div>" +
+            "<div>Intent href (masked): <code>intent://reset-password?" + maskedParams(merged) + "#Intent;...</code></div>" +
+            "<div>Alternate href (masked): <code>kotc://reset-password?" + maskedParams(merged) + "</code></div>";
+        }
       }
     })();
   </script>
