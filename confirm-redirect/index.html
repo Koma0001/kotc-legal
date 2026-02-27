@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>King of the City - Password Reset</title>
-  <meta name="description" content="Open King of the City app to complete password reset." />
+  <title>King of the City - Confirm Email</title>
+  <meta name="description" content="Open King of the City app to complete email confirmation." />
   <style>
     * { box-sizing: border-box; }
     body {
@@ -47,9 +47,9 @@
 <body>
   <main class="card">
     <h1>King of the City</h1>
-    <p class="subtitle">Opening the app to reset your password&hellip;</p>
-    <a id="btn" class="btn" href="intent://reset-password#Intent;scheme=kotc;package=com.koma0001.kotc;end">Open App</a>
-    <a id="alt" class="alt" href="kotc://reset-password">Alternate link</a>
+    <p class="subtitle">Confirming your email. Opening the app now&hellip;</p>
+    <a id="btn" class="btn" href="intent://confirm-email#Intent;scheme=kotc;package=com.koma0001.kotc;end">Open App</a>
+    <a id="alt" class="alt" href="kotc://confirm-email">Alternate link</a>
     <div class="help">
       <p>If the app doesn't open automatically, tap the button above.</p>
       <p>Make sure King of the City is installed.</p>
@@ -61,18 +61,12 @@
       var hashRaw = (location.hash || "").replace(/^#/, "");
       var hashParams = new URLSearchParams(hashRaw);
       var merged = new URLSearchParams();
-      queryParams.forEach(function (value, key) {
-        if (key === "debug") return;
-        merged.set(key, value);
-      });
-      hashParams.forEach(function (value, key) {
-        if (key === "debug") return;
-        if (!merged.has(key)) merged.set(key, value);
-      });
+      queryParams.forEach(function (value, key) { merged.set(key, value); });
+      hashParams.forEach(function (value, key) { if (!merged.has(key)) merged.set(key, value); });
       var mergedQuery = merged.toString();
       var querySuffix = mergedQuery ? ("?" + mergedQuery) : "";
-      var intentHref = "intent://reset-password" + querySuffix + "#Intent;scheme=kotc;package=com.koma0001.kotc;end";
-      var altHref = "kotc://reset-password" + querySuffix;
+      var intentHref = "intent://confirm-email" + querySuffix + "#Intent;scheme=kotc;package=com.koma0001.kotc;end";
+      var altHref = "kotc://confirm-email" + querySuffix;
       var btn = document.getElementById("btn");
       var alt = document.getElementById("alt");
       if (btn) btn.href = intentHref;
