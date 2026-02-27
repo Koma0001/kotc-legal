@@ -4,81 +4,131 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>King of the City - Password Reset</title>
-  <meta name="description" content="Open King of the City app to complete password reset." />
   <style>
     * { box-sizing: border-box; }
     body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
       padding: 24px;
       background: radial-gradient(circle at top, #16213a 0%, #0d1220 45%, #070b14 100%);
       color: #e8ecf4;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      opacity: 0;
-      transition: opacity 0.3s ease;
     }
-    body.visible { opacity: 1; }
     .card {
-      width: 100%;
-      max-width: 460px;
-      background: rgba(12, 17, 30, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 28px 22px;
-      text-align: center;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      width: 100%; max-width: 460px;
+      background: rgba(12,17,30,0.9); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 28px 22px; text-align: center;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
     }
-    h1 { margin: 0 0 8px; font-size: 28px; color: #ffffff; }
-    p.subtitle { margin: 0 0 22px; color: #c8d1e0; line-height: 1.45; font-size: 15px; }
+    h1 { margin: 0 0 8px; font-size: 28px; color: #fff; }
+    p.sub { margin: 0 0 22px; color: #c8d1e0; line-height: 1.45; font-size: 15px; }
     .btn {
       display: block; width: 100%; border: 0; border-radius: 12px;
       text-decoration: none; padding: 14px 16px; font-weight: 700;
       font-size: 16px; background: #2fd9ff; color: #07111d;
-      margin: 0 0 12px; -webkit-tap-highlight-color: transparent;
+      margin: 0 0 10px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
     .btn:active { background: #22c5eb; }
-    .alt { display: inline-block; margin-top: 2px; color: #8fdfff; text-decoration: underline; font-size: 14px; }
-    .help { margin-top: 18px; color: #aeb7c8; font-size: 13px; line-height: 1.5; }
+    .btn-alt {
+      display: block; width: 100%; border: 0; border-radius: 12px;
+      text-decoration: none; padding: 12px 16px; font-weight: 600;
+      font-size: 14px; background: rgba(255,255,255,0.1); color: #8fdfff;
+      margin: 0 0 10px; cursor: pointer;
+    }
+    .help { margin-top: 14px; color: #aeb7c8; font-size: 13px; line-height: 1.5; }
     .help p { margin: 6px 0; }
+    .spinner { margin: 12px auto; width: 24px; height: 24px;
+      border: 3px solid rgba(255,255,255,0.2); border-top-color: #2fd9ff;
+      border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #status { color: #8fdfff; font-size: 13px; margin-bottom: 12px; min-height: 18px; }
   </style>
 </head>
 <body>
   <main class="card">
     <h1>King of the City</h1>
-    <p class="subtitle">Opening the app to reset your password&hellip;</p>
-    <a id="btn" class="btn" href="intent://reset-password#Intent;scheme=kotc;package=com.koma0001.kotc;end">Open App</a>
-    <a id="alt" class="alt" href="kotc://reset-password">Alternate link</a>
-    <div class="help">
-      <p>If the app doesn't open automatically, tap the button above.</p>
-      <p>Make sure King of the City is installed.</p>
+    <p class="sub" id="subtitle">Opening the app to reset your password&hellip;</p>
+    <div class="spinner" id="spinner"></div>
+    <div id="status">Redirecting&hellip;</div>
+
+    <div id="buttons" style="display:none">
+      <a id="btn-intent" class="btn">Open App</a>
+      <a id="btn-scheme" class="btn-alt">Alternate link (tap if above fails)</a>
+    </div>
+
+    <div class="help" id="help" style="display:none">
+      <p>If the app doesn't open, make sure King of the City is installed.</p>
     </div>
   </main>
+
   <script>
     (function () {
-      var queryParams = new URLSearchParams(location.search || "");
-      var hashRaw = (location.hash || "").replace(/^#/, "");
-      var hashParams = new URLSearchParams(hashRaw);
+      // Merge query + hash params into a single query string.
+      // Supabase may put tokens in either ?query or #fragment depending on flow.
+      var qp = new URLSearchParams(location.search || "");
+      var hr = (location.hash || "").replace(/^#/, "");
+      var hp = new URLSearchParams(hr);
       var merged = new URLSearchParams();
-      queryParams.forEach(function (value, key) {
-        if (key === "debug") return;
-        merged.set(key, value);
+      qp.forEach(function (v, k) { if (k !== "debug") merged.set(k, v); });
+      hp.forEach(function (v, k) { if (k !== "debug" && !merged.has(k)) merged.set(k, v); });
+      var qs = merged.toString();
+      var suffix = qs ? ("?" + qs) : "";
+
+      // Build both URI variants
+      var schemeUrl = "kotc://reset-password" + suffix;
+      var intentUrl = "intent://reset-password" + suffix
+        + "#Intent;scheme=kotc;package=com.koma0001.kotc;"
+        + "S.browser_fallback_url=" + encodeURIComponent(location.href) + ";end";
+
+      // Wire up buttons
+      var btnIntent = document.getElementById("btn-intent");
+      var btnScheme = document.getElementById("btn-scheme");
+      if (btnIntent) btnIntent.href = intentUrl;
+      if (btnScheme) btnScheme.href = schemeUrl;
+
+      var opened = false;
+      function showButtons() {
+        if (opened) return;
+        document.getElementById("spinner").style.display = "none";
+        document.getElementById("status").textContent = "Tap the button to open the app:";
+        document.getElementById("buttons").style.display = "block";
+        document.getElementById("help").style.display = "block";
+      }
+
+      // Strategy 1: Try kotc:// scheme directly (works in many contexts)
+      function tryScheme() {
+        var iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = schemeUrl;
+        document.body.appendChild(iframe);
+        // Also try direct navigation
+        window.location.href = schemeUrl;
+      }
+
+      // Strategy 2: Try intent:// (works in Chrome, not all webviews)
+      function tryIntent() {
+        window.location.href = intentUrl;
+      }
+
+      // Detect visibility change = app opened successfully
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) { opened = true; }
       });
-      hashParams.forEach(function (value, key) {
-        if (key === "debug") return;
-        if (!merged.has(key)) merged.set(key, value);
-      });
-      var mergedQuery = merged.toString();
-      var querySuffix = mergedQuery ? ("?" + mergedQuery) : "";
-      var intentHref = "intent://reset-password" + querySuffix + "#Intent;scheme=kotc;package=com.koma0001.kotc;end";
-      var altHref = "kotc://reset-password" + querySuffix;
-      var btn = document.getElementById("btn");
-      var alt = document.getElementById("alt");
-      if (btn) btn.href = intentHref;
-      if (alt) alt.href = altHref;
-      try { location.replace(intentHref); } catch (e) {}
-      setTimeout(function () { document.body.classList.add("visible"); }, 1000);
+
+      // Try scheme first (preserves URL better), then intent, then show buttons
+      if (suffix) {
+        tryScheme();
+        setTimeout(function () {
+          if (!opened) tryIntent();
+        }, 600);
+        setTimeout(function () {
+          if (!opened) showButtons();
+        }, 1800);
+      } else {
+        // No tokens in URL - just show the buttons
+        document.getElementById("subtitle").textContent = "Tap below to open the app.";
+        showButtons();
+      }
     })();
   </script>
 </body>
